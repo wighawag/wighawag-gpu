@@ -6,60 +6,85 @@ using nme.Vector;
 import nme.display3D.Context3D;
 import nme.utils.Endian;
 
+using nme.display3D.Context3DUtils;
+
+import msignal.Signal;
+
 class GPUContext {
 
 	private var context3D : Context3D;
-	private var projectionMatrix : Matrix3D;
 
-	private  var availableTextures : Hash<TextureData>;
+	private  var availableTextures : Array<TextureData>;
 	private var programs(default,null) : Array<GPUProgram>;
 
+    public var onResize(default, null) : Signal2<Int, Int>;
+    public var width(default, null) : Int;
+    public var height(default, null) : Int;
+
+    private var r : Int = 0;
+    private var g : Int = 0;
+    private var b : Int = 0;
+    private var a : Int = 1;
+
+    private var antiAlias : Int = 0;
+
     public function new(context3D : Context3D) : Void {
+
+        programs = new Array();
+        onResize = new Signal2();
+
 	    this.context3D = context3D;
-	    #if cpp
-	    context3D.setRenderMethod(render);
-	    #end
-	    reset();
+
+        context3D.setRenderCallback(render);
+
+        reset();
     }
 
-	public function setAvailableTextures(nativeTextures : Hash<TextureData>) : Void{
+	public function setAvailableTextures(nativeTextures : Array<TextureData>) : Void{
 		this.availableTextures = nativeTextures;
 	}
 
-    private var i = 0;
-	public function render(rect : Rectangle) : Void{
+    public function setClearColor(r : Int, g : Int, b : Int, a : Int) :Void{
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
 
-        context3D.setBlendFactors(nme.display3D.Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA, nme.display3D.Context3DBlendFactor.ONE);
+    public function setAntiAlias(value : Int) : Void{
+        this.antiAlias = value;
+        configureBackBuffer();
+    }
 
-        context3D.clear(0, 0, 0, 1);
+	public function render() : Void{
+
+
+        context3D.clear(r, g, b, a);
 
 		for(program in programs){
 			program.execute();
 		}
 
 		context3D.present();
-
-		reset();
 	}
 
 	public function resize(width : Int, height : Int) : Void{
-		context3D.configureBackBuffer(width, height, 2, false); //antialis, depth and stencil ?
-
-		projectionMatrix = new Matrix3D(Vector.ofArray([
-		2/width, 0, 0, 0,
-		0, -2/height, 0, 0,
-		0, 0, -1, 0,
-		-1, 1, 0, 1
-		]));
+        this.width = width;
+        this.height = height;
+        configureBackBuffer();
+        onResize.dispatch(width, height);
 	}
 
+    private function configureBackBuffer(): Void{
+        context3D.configureBackBuffer(width, height, antiAlias, false); //TODO depth and stencil ?
+    }
+
 	public function reset() : Void{
-		programs = new Array();
+		programs.splice(0,programs.length);  // TODO check is it better than "programs = new Array();" ?
 	}
 
 	public function addProgram(program : GPUProgram) : Void{
 		program.setContext(context3D);
-		program.setProjectionMatrix(projectionMatrix);
 		program.setAvailableTextures(availableTextures);
 		programs.push(program);
 	}

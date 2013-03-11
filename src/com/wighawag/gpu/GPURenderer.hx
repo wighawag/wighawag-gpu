@@ -1,7 +1,7 @@
 package com.wighawag.gpu;
 
 import nme.display3D.Context3DBlendFactor;
-import nme.display3D.Context3DUtils;
+
 import nme.geom.Point;
 import nme.geom.Rectangle;
 import nme.display.BitmapData;
@@ -25,6 +25,8 @@ import nme.display3D.Context3D;
 
 import promhx.Promise;
 
+import msignal.Signal;
+
 class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 
 	private var gpuContext : GPUContext;
@@ -35,12 +37,17 @@ class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 
 	private var initialised : Promise<GPURenderer>;
 
-	private var nativeTextures : Hash<TextureData>;
+	private var nativeTextures : Array<TextureData>;
 	private var texturesToProcess : Array<BitmapAsset>;
 
-    public function new() {
+    public var onResize(default, null) : Signal2<Int, Int>;
+    public var width(default, null) : Int;
+    public var height(default, null) : Int;
 
-	    nativeTextures = new Hash();
+    public function new() {
+        onResize = new Signal2();
+
+	    nativeTextures = new Array();
     }
 
 	public function init() : Promise<GPURenderer>{
@@ -87,8 +94,8 @@ class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 		context3D.enableErrorChecking = true;
 
 		gpuContext = new GPUContext(context3D);
-		onResize(null);
-		nme.Lib.current.stage.addEventListener(Event.RESIZE, onResize);
+		onResizeEvent(null);
+		nme.Lib.current.stage.addEventListener(Event.RESIZE, onResizeEvent);
 
 		if(texturesToProcess != null){
 			uploadTextures(texturesToProcess);
@@ -96,6 +103,7 @@ class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 		}
 
 		initialised.resolve(this);
+
 	}
 
 
@@ -116,16 +124,17 @@ class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 
 	}
 
-	private function onResize (event : Event)
+	private function onResizeEvent (event : Event)
 	{
-		if (gpuContext != null) {
-			var stage = nme.Lib.current.stage;
-			gpuContext.resize(stage.stageWidth, stage.stageHeight);
-		}
-	}
+        var stage = nme.Lib.current.stage;
 
-	public function render() : Void{
-		gpuContext.render(null);
+        width = stage.stageWidth;
+        height = stage.stageHeight;
+        onResize.dispatch(width, height);
+
+		if (gpuContext != null) {
+			gpuContext.resize(width, height);
+		}
 	}
 
 	public function lock() : GPUContext{
@@ -138,7 +147,21 @@ class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 
 	}
 
-	// TODO ensure Textures
+    public function reset() : Void{
+        gpuContext.reset();
+        unloadAllTextures();
+    }
+
+    public function setClearColor(r : Int, g : Int, b : Int, a : Int) :Void{
+       gpuContext.setClearColor(r,g,b,a);
+    }
+
+    public function setAntiAlias(value : Int) : Void{
+        gpuContext.setAntiAlias(value);
+    }
+
+
+// TODO ensure Textures
 	public function uploadTextures(textures : Array<BitmapAsset>) : Void{
 
 		if (context3D == null){
@@ -168,16 +191,41 @@ class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 			var nativeTexture = context3D.createTexture(bitmapData.width, bitmapData.height,Context3DTextureFormat.BGRA, false);
 			nativeTexture.uploadFromBitmapData(bitmapData);
 
-			var textureData = new TextureData(nativeTexture, maxU / bitmapData.width, maxV /bitmapData.height);
+			var textureData = new TextureData(texture.id, nativeTexture, maxU / texture.bitmapData.width, maxV /texture.bitmapData.height);
 
 			//TODO  store maxU and maxV
-			nativeTextures.set(texture.id, textureData);
+			nativeTextures.push(textureData);
 		}
+
+        nativeTextures = nativeTextures.copy(); // ensure the ne texture are taken in consideration
 
 	}
 
-	public function unloadTextures(textures : Array<BitmapAsset>) : Void{
-        //TODO
+    public function unloadAllTextures() : Void{
+        for(texture in nativeTextures){
+            texture.texture.dispose();
+        }
+        nativeTextures = new Array();
+    }
+
+	public function unloadTextures(bitmapAssets : Array<BitmapAsset>) : Void{
+        var newNativeTextures = new Array();
+
+        for (texture in nativeTextures){
+            var toBeRemoved : Bool = false;
+            for (bitmapAsset in bitmapAssets){
+                if(texture.id == bitmapAsset.id){
+                    toBeRemoved = true;
+                    break;
+                }
+            }
+            if(!toBeRemoved){
+                newNativeTextures.push(texture);
+            }
+
+        }
+
+        nativeTextures = newNativeTextures;
 	}
 
 }
