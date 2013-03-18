@@ -118,6 +118,8 @@ class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 		stage3D.removeEventListener(ErrorEvent.ERROR, gotError);
 		stage3D = null;
 
+        unloadAllTextures();
+        gpuContext.dispose();
 		gpuContext = null;
 		context3D = null;
 
@@ -216,6 +218,7 @@ class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
             for (bitmapAsset in bitmapAssets){
                 if(texture.id == bitmapAsset.id){
                     toBeRemoved = true;
+                    texture.texture.dispose();
                     break;
                 }
             }

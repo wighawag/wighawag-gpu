@@ -89,4 +89,14 @@ class GPUContext {
 		programs.push(program);
 	}
 
+    public function dispose() : Void{
+        context3D = null;
+        availableTextures = null;
+        for(program in programs){
+            program.dispose();
+        }
+        programs = null;
+        onResize = null;
+    }
+
 }
