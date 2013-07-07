@@ -1,6 +1,14 @@
-package com.wighawag.gpu;
+/****
+* Wighawag License:
+* - free to use for commercial and non commercial application
+* - provided the modification done to it are given back to the community
+* - use at your own risk
+* 
+****/
 
-import nme.display3D.Context3D;
+package wighawag.gpu;
+
+import flash.display3D.Context3D;
 
 interface GPUProgram {
 

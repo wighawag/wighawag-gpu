@@ -1,4 +1,4 @@
-package com.wighawag.gpu;
+package wighawag.gpu;
 
 import massive.munit.Assert;
 

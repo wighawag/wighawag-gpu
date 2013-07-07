@@ -1,12 +1,21 @@
-package com.wighawag.gpu;
-import nme.geom.Rectangle;
-import nme.utils.ByteArray;
-import nme.geom.Matrix3D;
-using nme.Vector;
-import nme.display3D.Context3D;
-import nme.utils.Endian;
+/****
+* Wighawag License:
+* - free to use for commercial and non commercial application
+* - provided the modification done to it are given back to the community
+* - use at your own risk
+* 
+****/
 
-using nme.display3D.Context3DUtils;
+package wighawag.gpu;
+import flash.events.Event;
+import flash.geom.Rectangle;
+import flash.utils.ByteArray;
+import flash.geom.Matrix3D;
+using flash.Vector;
+import flash.display3D.Context3D;
+import flash.utils.Endian;
+
+using flash.display3D.Context3DUtils;
 
 import msignal.Signal;
 
@@ -28,14 +37,20 @@ class GPUContext {
 
     private var antiAlias : Int = 0;
 
+    private var disposed : Bool;
+
     public function new(context3D : Context3D) : Void {
+
 
         programs = new Array();
         onResize = new Signal2();
 
+
 	    this.context3D = context3D;
+        disposed = false;
 
         context3D.setRenderCallback(render);
+
 
         reset();
     }
@@ -56,8 +71,11 @@ class GPUContext {
         configureBackBuffer();
     }
 
-	public function render() : Void{
-
+	public function render(event : Event) : Void{
+        if(disposed){
+            Report.aWarning("GPUContext", "Context3D has been disposed");
+            return;
+        }
 
         context3D.clear(r, g, b, a);
 
@@ -90,6 +108,7 @@ class GPUContext {
 	}
 
     public function dispose() : Void{
+        context3D.removeRenderCallback(render);
         context3D = null;
         availableTextures = null;
         for(program in programs){
@@ -97,6 +116,7 @@ class GPUContext {
         }
         programs = null;
         onResize = null;
+        disposed = true;
     }
 
 }

@@ -1,27 +1,35 @@
-package com.wighawag.gpu;
+/****
+* Wighawag License:
+* - free to use for commercial and non commercial application
+* - provided the modification done to it are given back to the community
+* - use at your own risk
+* 
+****/
 
-import nme.display3D.Context3DBlendFactor;
+package wighawag.gpu;
 
-import nme.geom.Point;
-import nme.geom.Rectangle;
-import nme.display.BitmapData;
-import nme.display3D.Context3DBlendFactor;
+import flash.display3D.Context3DBlendFactor;
 
-
-import nme.display.Stage3D;
-
-import nme.events.ErrorEvent;
-import nme.events.Event;
+import flash.geom.Point;
+import flash.geom.Rectangle;
+import flash.display.BitmapData;
+import flash.display3D.Context3DBlendFactor;
 
 
-import com.wighawag.asset.load.BitmapAsset;
-import com.wighawag.asset.renderer.Renderer;
+import flash.display.Stage3D;
 
-import com.wighawag.utils.MathUtils;
+import flash.events.ErrorEvent;
+import flash.events.Event;
 
-import nme.display3D.Context3DTextureFormat;
-import nme.display3D.textures.Texture;
-import nme.display3D.Context3D;
+
+import wighawag.asset.load.BitmapAsset;
+import wighawag.asset.renderer.Renderer;
+
+import wighawag.utils.MathUtils;
+
+import flash.display3D.Context3DTextureFormat;
+import flash.display3D.textures.Texture;
+import flash.display3D.Context3D;
 
 import promhx.Promise;
 
@@ -56,7 +64,7 @@ class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 
             initialised = new Promise();
 
-            var stage = nme.Lib.current.stage;
+            var stage = flash.Lib.current.stage;
 
 
             // Use the first available Stage3D
@@ -95,7 +103,7 @@ class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 
 		gpuContext = new GPUContext(context3D);
 		onResizeEvent(null);
-		nme.Lib.current.stage.addEventListener(Event.RESIZE, onResizeEvent);
+		flash.Lib.current.stage.addEventListener(Event.RESIZE, onResizeEvent);
 
 		if(texturesToProcess != null){
 			uploadTextures(texturesToProcess);
@@ -128,7 +136,7 @@ class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 
 	private function onResizeEvent (event : Event)
 	{
-        var stage = nme.Lib.current.stage;
+        var stage = flash.Lib.current.stage;
 
         width = stage.stageWidth;
         height = stage.stageHeight;

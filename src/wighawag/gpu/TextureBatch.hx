@@ -1,7 +1,15 @@
-package com.wighawag.gpu;
+/****
+* Wighawag License:
+* - free to use for commercial and non commercial application
+* - provided the modification done to it are given back to the community
+* - use at your own risk
+* 
+****/
 
-import nme.utils.ByteArray;
-import com.wighawag.asset.load.AssetManager;
+package wighawag.gpu;
+
+import flash.utils.ByteArray;
+import wighawag.asset.load.AssetManager;
 
 class TextureBatch {
 
