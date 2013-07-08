@@ -1,13 +1,13 @@
 {
   "name": "wighawag-gpu",
   "url" : "https://github.wighawag/wighawag-gpu/",
-  "license": "Wighawag",
+  "license": "GPL",
   "tags": ["cross","debug"],
   "description": "",
   "version": "0.0.1",
   "releasenote": "",
   "contributors": ["wighawag"],
-  "dependencies": {"wighawag-report":"", "wighawag-asset":"","wighawag-utils":"", "msignal":"", "stage3d-glsl-wrapper":""},
+  "dependencies": {"wighawag-report":"0.0.1", "wighawag-asset":"0.0.1","wighawag-utils":"0.0.1", "msignal":"1.2.1", "stage3d-glsl-wrapper":"0.0.1"},
   "classPath":"src",
   "targets":["as3"]
 }
