@@ -15,7 +15,8 @@ using flash.Vector;
 import flash.display3D.Context3D;
 import flash.utils.Endian;
 
-using flash.display3D.Context3DUtils;
+
+using OpenFLStage3D;
 
 import msignal.Signal;
 

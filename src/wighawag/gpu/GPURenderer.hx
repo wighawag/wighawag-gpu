@@ -35,6 +35,8 @@ import promhx.Promise;
 
 import msignal.Signal;
 
+using OpenFLStage3D;
+
 class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 
 	private var gpuContext : GPUContext;
@@ -66,16 +68,10 @@ class GPURenderer implements Renderer<GPUContext, BitmapAsset>{
 
             var stage = flash.Lib.current.stage;
 
-
-            // Use the first available Stage3D
-            for (stage3D in stage.stage3Ds) {
-                if (stage3D.context3D == null) {
-                    this.stage3D = stage3D;
-                }
-            }
+            stage3D = stage.getStage3D(0);
 
             if(stage3D ==null){
-                Report.anError("GPURenderer", "No free Stage3Ds available");
+                Report.anError("GPURenderer", "No Stage3Ds available");
                 gotError(null);
             }
 
